@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SynergiQ™ Pro - エンタープライズ戦略提言AI</title>
+<meta name="description" content="SynergiQ™ Pro — エンタープライズ向け戦略提言AI。市場データとシナジー指数をリアルタイムに分析し、経営戦略・DX推進・マーケティングの意思決定を支援します。" />
+<meta property="og:title" content="SynergiQ™ Pro - Enterprise Strategy AI" />
+<meta property="og:description" content="市場データとシナジー指数をリアルタイム分析する次世代の戦略提言AIプラットフォーム。" />
+<meta property="og:type" content="website" />
+<meta name="theme-color" content="#0A0E1A" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2306B6D4'/%3E%3Ctext x='16' y='23' font-family='sans-serif' font-size='20' font-weight='700' fill='%230A0E1A' text-anchor='middle'%3EQ%3C/text%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+JP:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+:root{
+  --bg:#0A0E1A;
+  --bg-card:#131825;
+  --bg-elev:#1A2032;
+  --bg-hover:#232B3F;
+  --border:#283145;
+  --border-soft:#1F2638;
+  --text:#E8ECF1;
+  --text-2:#94A0B6;
+  --text-3:#5A6478;
+  --cyan:#06B6D4;
+  --green:#22C55E;
+  --red:#EF4444;
+  --amber:#F59E0B;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'IBM Plex Sans JP',-apple-system,BlinkMacSystemFont,sans-serif;
+  font-weight:400;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+.font-mono{font-family:'IBM Plex Mono',ui-monospace,monospace;}
+::-webkit-scrollbar{width:10px;height:10px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:5px;}
+::-webkit-scrollbar-thumb:hover{background:var(--bg-hover);}
+
+@keyframes phraseIn{
+  from{opacity:0;transform:translateY(8px);filter:blur(4px);}
+  to{opacity:1;transform:none;filter:none;}
+}
+@keyframes pulse{0%,100%{opacity:0.4;}50%{opacity:1;}}
+@keyframes scan{0%{left:-100%;}100%{left:100%;}}
+@keyframes led{
+  0%,100%{background:#22C55E;box-shadow:0 0 8px #22C55E;}
+  50%{background:#16803D;box-shadow:0 0 2px #16803D;}
+}
+@keyframes tickerMove{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
+@keyframes bootBar{0%{transform:translateX(-100%);}100%{transform:translateX(350%);}}
+@keyframes fadeStep{from{opacity:0;}to{opacity:1;}}
+
+.phrase-enter{animation:phraseIn 0.5s cubic-bezier(0.22,0.61,0.36,1) both;}
+.pulse-dot{animation:pulse 1.6s ease-in-out infinite;}
+.blink-led{animation:led 1.8s ease-in-out infinite;}
+.ticker{animation:tickerMove 22s linear infinite;}
+.marquee-text{animation:fadeStep 0.32s ease both;}
+
+.scan-line{position:relative;overflow:hidden;}
+.scan-line::after{
+  content:"";
+  position:absolute;top:0;bottom:0;width:55%;
+  background:linear-gradient(90deg,transparent,rgba(6,182,212,0.16),transparent);
+  animation:scan 1.25s linear infinite;
+  pointer-events:none;
+}
+
+.cta-glow{
+  background:linear-gradient(180deg,#0BC9E8,#06B6D4);
+  box-shadow:0 0 0 1px rgba(6,182,212,0.5),0 0 22px rgba(6,182,212,0.35),inset 0 1px 0 rgba(255,255,255,0.35);
+}
+.cta-glow:hover:not(:disabled){
+  background:linear-gradient(180deg,#22D3EE,#0AC0DE);
+  box-shadow:0 0 0 1px rgba(6,182,212,0.6),0 0 28px rgba(6,182,212,0.5),inset 0 1px 0 rgba(255,255,255,0.4);
+}
+.cta-glow:disabled{opacity:0.55;cursor:not-allowed;}
+
+.boot{
+  position:fixed;inset:0;z-index:9999;
+  background:var(--bg);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;
+  transition:opacity 0.45s ease;
+}
+.boot.hide{opacity:0;pointer-events:none;}
+.boot-bar{
+  width:120px;height:2px;background:var(--border-soft);
+  border-radius:2px;overflow:hidden;position:relative;
+}
+.boot-bar::after{
+  content:"";position:absolute;top:0;height:100%;width:40%;
+  background:var(--cyan);box-shadow:0 0 10px var(--cyan);
+  animation:bootBar 0.9s ease-in-out infinite;
+}
+
+.spin{animation:spin 0.9s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+.card{
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:12px;
+}
+.tab-btn{transition:background 0.15s ease,border-color 0.15s ease,color 0.15s ease;}
+.icon-btn{transition:background 0.15s ease,border-color 0.15s ease,color 0.15s ease;}
+.icon-btn:hover{background:var(--bg-hover);}
+.hist-row{transition:background 0.12s ease;}
+.hist-row:hover{background:var(--bg-elev);}
+</style>
+</head>
+<body>
+<div id="boot" class="boot">
+  <div style="font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:26px;letter-spacing:0.08em;color:var(--cyan);">SynergiQ™ Pro</div>
+  <div class="boot-bar"></div>
+  <div class="font-mono" style="font-size:11px;letter-spacing:0.18em;color:var(--text-3);">INITIALIZING STRATEGIC ENGINE…</div>
+</div>
+<div id="root"></div>
+
+<script type="text/babel" data-presets="react">
+const { useState, useEffect, useRef, useCallback } = React;
+
+/* ===================== DATA ===================== */
+const ADVERBS = [
+  "アジャイルに", "戦略的に", "サステナブルに", "ホリスティックに", "トップダウンで",
+  "ボトムアップで", "データドリブンに", "ユーザーセントリックに", "グローバルに",
+  "リーンに", "スケーラブルに", "ロバストに", "シームレスに", "エンドツーエンドで",
+  "クロスファンクショナルに", "ファクトベースで", "ROIを意識して", "ASAPで",
+  "コラボレーティブに", "ジャストインタイムで", "ベストプラクティスに基づき",
+  "エビデンスベースで", "アウトカム志向で", "アジャイル開発手法で", "ハイブリッドに"
+];
+const ADJECTIVES = [
+  "サステナブルな", "ホリスティックな", "アジャイルな", "リーンな", "ロバストな",
+  "スケーラブルな", "シームレスな", "ハイブリッドな", "グローバルな", "データドリブンな",
+  "ユーザーセントリックな", "トランスフォーマティブな", "ディスラプティブな",
+  "エンタープライズグレードの", "エコシステム型の", "アウトカムベースの"
+];
+const NOUNS = [
+  "DX", "KPI", "OKR", "シナジー", "ROI", "グロースハック", "エコシステム",
+  "バリューチェーン", "UI/UX", "PoC", "CX", "EX", "リーダーシップ", "サステナビリティ",
+  "SaaS", "AI", "MLOps", "データレイク", "フィードバックループ", "カスタマージャーニー",
+  "ペインポイント", "ベンチマーク", "KGI", "CRM", "ステークホルダー", "エンゲージメント",
+  "リテンション", "LTV", "CAC", "ARR", "PMF", "TAM", "コアコンピタンス",
+  "ブルーオーシャン", "コアバリュー", "ミッション", "ビジョン", "パーパス", "ガバナンス",
+  "コンプライアンス", "トランスフォーメーション", "イノベーション", "アジリティ",
+  "レジリエンス", "メソドロジー", "フレームワーク", "ナレッジマネジメント", "ESG"
+];
+const VERBS_M = [
+  "ピボットし", "ローンチし", "ブラッシュアップし", "リブランドし", "リファクタし",
+  "推進し", "最適化し", "可視化し", "横展開し", "深掘りし", "巻き取り", "コミットし",
+  "リソース投下し", "巻き込み", "ジョインさせ", "リードし", "ドライブし", "エンパワーし",
+  "フィットさせ", "アラインし", "エンゲージし", "スケールし", "デリバーし",
+  "ベンチマークし", "アセスメントし"
+];
+const VERBS_E = [
+  "最大化する", "再定義する", "加速する", "深掘りする", "可視化する", "横展開する",
+  "高速化する", "内製化する", "マネタイズする", "ブラッシュアップする", "ローンチする",
+  "スケールする", "ピボットする", "リブランドする", "エンパワーする", "コミットする",
+  "アラインする", "ドライブする", "リードする", "エンゲージする", "ベンチマークする",
+  "次のフェーズに引き上げる", "成果に直結させる", "競争力に転換する", "事業価値に昇華する"
+];
+const CONCLUSIONS = [
+  "勝ち筋を見出す", "差別化を図る", "競合優位性を確立する", "市場のペインを解決する",
+  "次のステージに上げる", "成果にコミットする", "レバレッジを効かせる",
+  "ステークホルダーを巻き込む", "組織のアジリティを高める", "グロースを加速する",
+  "PMFを達成する", "エクセレンスを追求する", "価値を再構築する",
+  "共通理解を醸成する", "戦略を最適化する", "プロセスを抜本的に見直す",
+  "持続的な成長軌道に乗せる"
+];
+const LOADING_STEPS = [
+  "市場データを参照中",
+  "ステークホルダー分析中",
+  "シナジー指数を算出中",
+  "競合動向をスキャン中",
+  "ベストプラクティスを照合中",
+  "業界レポートを精査中",
+  "AIモデルを推論中",
+  "戦略レイヤーを評価中",
+  "ナレッジグラフを横断中",
+  "KPIマトリクスを再計算中",
+  "クラスター分析を実行中",
+  "予測モデルを最適化中"
+];
+const TICKER = [
+  "NIKKEI 38,924.31 ▲ +0.42%",
+  "TOPIX 2,712.55 ▲ +0.38%",
+  "DOW 39,807.37 ▼ -0.12%",
+  "USD/JPY 156.82 ▲ +0.21%",
+  "WTI 78.45 ▼ -0.66%",
+  "BTC 67,234 ▲ +1.84%",
+  "S&P 5,254.35 ▲ +0.11%",
+  "NASDAQ 16,379.46 ▼ -0.31%",
+  "VIX 13.01 ▲ +2.10%",
+  "GOLD 2,238.40 ▲ +0.55%"
+];
+
+const rand = (arr) => arr[Math.floor(Math.random() * arr.length)];
+
+const TEMPLATES = [
+  () => `${rand(ADVERBS)}${rand(NOUNS)}を${rand(VERBS_M)}、${rand(NOUNS)}を${rand(VERBS_E)}`,
+  () => `${rand(ADJECTIVES)}${rand(NOUNS)}で${rand(NOUNS)}を${rand(VERBS_M)}、${rand(CONCLUSIONS)}`,
+  () => `${rand(NOUNS)}と${rand(NOUNS)}を${rand(VERBS_M)}、${rand(ADVERBS)}${rand(NOUNS)}を${rand(VERBS_E)}`,
+  () => `${rand(ADVERBS)}${rand(NOUNS)}を再定義し、${rand(ADJECTIVES)}${rand(NOUNS)}で${rand(CONCLUSIONS)}`,
+  () => `${rand(ADJECTIVES)}${rand(NOUNS)}で${rand(NOUNS)}と${rand(NOUNS)}を${rand(VERBS_M)}、${rand(CONCLUSIONS)}`,
+  () => `${rand(NOUNS)}起点で${rand(ADJECTIVES)}${rand(NOUNS)}を${rand(VERBS_M)}、${rand(CONCLUSIONS)}`
+];
+const genPhrase = () => rand(TEMPLATES)();
+
+const MODES = ["経営戦略", "DX推進", "マーケティング", "HR・組織", "イノベーション"];
+
+/* ===================== ICONS ===================== */
+const Icon = ({ name, size = 16, className = "", starActive = false }) => {
+  const paths = {
+    Copy: <><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></>,
+    Volume2: <><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></>,
+    Star: <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>,
+    RefreshCw: <><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></>,
+    TrendingUp: <><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></>,
+    Activity: <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>,
+    ChevronRight: <polyline points="9 18 15 12 9 6"/>,
+    Sparkles: <><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9L12 3z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8L19 15z"/></>,
+    Target: <><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></>,
+    BarChart: <><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></>,
+    Layers: <><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></>,
+    Settings: <><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></>
+  };
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24"
+      fill={name === "Star" && starActive ? "currentColor" : "none"}
+      stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+      className={className}>
+      {paths[name]}
+    </svg>
+  );
+};
+
+/* ===================== METRICS ===================== */
+const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+
+const makeMetrics = () => ({
+  confidence: +(70 + Math.random() * 29.9).toFixed(1),
+  synergy: Math.round(40 + Math.random() * 59),
+  roi: +(1.5 + Math.random() * 8.4).toFixed(1),
+  potential: Math.round(50 + Math.random() * 49),
+  align: Math.round(60 + Math.random() * 39)
+});
+
+const driftMetrics = (m) => ({
+  confidence: +clamp(m.confidence + (Math.random() - 0.5) * 1.0, 70, 99.9).toFixed(1),
+  synergy: Math.round(clamp(m.synergy + (Math.random() - 0.5) * 4, 40, 99)),
+  roi: +clamp(m.roi + (Math.random() - 0.5) * 0.4, 1.5, 9.9).toFixed(1),
+  potential: Math.round(clamp(m.potential + (Math.random() - 0.5) * 4, 50, 99)),
+  align: Math.round(clamp(m.align + (Math.random() - 0.5) * 2, 60, 99))
+});
+
+const makeSpark = () => {
+  const a = [];
+  let v = 30 + Math.random() * 25;
+  for (let i = 0; i < 24; i++) {
+    v = clamp(v + (Math.random() - 0.5) * 14, 8, 85);
+    a.push(+v.toFixed(1));
+  }
+  return a;
+};
+const stepSpark = (arr) => {
+  const last = arr[arr.length - 1];
+  const delta = (Math.random() < 0.5 ? -1 : 1) * (5 + Math.random() * 3);
+  const next = +clamp(last + delta, 8, 85).toFixed(1);
+  return [...arr.slice(1), next];
+};
+
+/* ===================== SPARKLINE ===================== */
+const Sparkline = ({ data, color }) => {
+  const W = 100, H = 56, pad = 4;
+  const min = Math.min(...data), max = Math.max(...data);
+  const range = max - min || 1;
+  const pts = data.map((v, i) => {
+    const x = pad + (i / (data.length - 1)) * (W - pad * 2);
+    const y = pad + (1 - (v - min) / range) * (H - pad * 2);
+    return [x, y];
+  });
+  const line = pts.map((p, i) => `${i === 0 ? "M" : "L"}${p[0].toFixed(2)},${p[1].toFixed(2)}`).join(" ");
+  const area = `${line} L${pts[pts.length - 1][0].toFixed(2)},${H} L${pts[0][0].toFixed(2)},${H} Z`;
+  const lastP = pts[pts.length - 1];
+  const gid = "g" + color.replace("#", "");
+  return (
+    <svg width="100%" height={H} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" style={{ display: "block" }}>
+      <defs>
+        <linearGradient id={gid} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={color} stopOpacity="0.32" />
+          <stop offset="100%" stopColor={color} stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <path d={area} fill={`url(#${gid})`} />
+      <path d={line} fill="none" stroke={color} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+      <circle cx={lastP[0]} cy={lastP[1]} r="2.6" fill={color} />
+    </svg>
+  );
+};
+
+/* ===================== CHART CARD ===================== */
+const ChartCard = ({ title, icon, change, positive, color, data }) => (
+  <div className="card p-4">
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-2">
+        <span style={{ color: "var(--text-3)" }}><Icon name={icon} size={14} /></span>
+        <span className="text-sm font-medium" style={{ color: "var(--text-2)" }}>{title}</span>
+      </div>
+      <span className="font-mono text-xs font-medium" style={{ color: positive ? "var(--green)" : "var(--red)" }}>
+        {positive ? "▲" : "▼"} {change}
+      </span>
+    </div>
+    <div className="mt-3">
+      <Sparkline data={data} color={color} />
+    </div>
+    <div className="mt-2 flex items-end justify-between">
+      <span className="font-mono text-lg font-semibold" style={{ color: "var(--text)" }}>
+        {data[data.length - 1].toFixed(1)}
+      </span>
+      <span className="font-mono" style={{ fontSize: "10px", letterSpacing: "0.14em", color: "var(--text-3)" }}>
+        UPDATED · LIVE
+      </span>
+    </div>
+  </div>
+);
+
+/* ===================== METRIC CELL ===================== */
+const MetricCell = ({ label, value, color }) => (
+  <div className="flex flex-col items-center text-center px-1 py-2">
+    <span className="font-mono font-semibold text-base md:text-lg" style={{ color }}>{value}</span>
+    <span className="mt-1" style={{ fontSize: "10px", letterSpacing: "0.08em", color: "var(--text-3)" }}>{label}</span>
+  </div>
+);
+
+/* ===================== APP ===================== */
+function App() {
+  const [activeMode, setActiveMode] = useState(0);
+  const [phrase, setPhrase] = useState(() => genPhrase());
+  const [phraseKey, setPhraseKey] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [loadStep, setLoadStep] = useState(LOADING_STEPS[0]);
+  const [loadStepKey, setLoadStepKey] = useState(0);
+  const [metrics, setMetrics] = useState(() => makeMetrics());
+  const [history, setHistory] = useState([]);
+  const [starred, setStarred] = useState(false);
+  const [voiceOn, setVoiceOn] = useState(false);
+  const [toast, setToast] = useState(null);
+  const [sparks, setSparks] = useState(() => [makeSpark(), makeSpark(), makeSpark()]);
+
+  const toastTimer = useRef(null);
+  const loadTimers = useRef([]);
+
+  /* toast */
+  const showToast = useCallback((msg) => {
+    setToast(msg);
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    toastTimer.current = setTimeout(() => setToast(null), 1800);
+  }, []);
+
+  /* drift metrics + sparklines every 1.4s */
+  useEffect(() => {
+    const id = setInterval(() => {
+      setMetrics((m) => driftMetrics(m));
+      setSparks((s) => s.map(stepSpark));
+    }, 1400);
+    return () => clearInterval(id);
+  }, []);
+
+  /* speech */
+  const speak = useCallback((text) => {
+    if (!("speechSynthesis" in window)) return;
+    try {
+      speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = "ja-JP";
+      u.rate = 1.0;
+      u.pitch = 1.0;
+      const voices = speechSynthesis.getVoices();
+      const jp = voices.find((v) => v.lang === "ja-JP" || v.lang.startsWith("ja"));
+      if (jp) u.voice = jp;
+      speechSynthesis.speak(u);
+    } catch (e) { /* noop */ }
+  }, []);
+
+  useEffect(() => {
+    if ("speechSynthesis" in window) {
+      const warm = () => speechSynthesis.getVoices();
+      warm();
+      speechSynthesis.onvoiceschanged = warm;
+    }
+  }, []);
+
+  /* generate */
+  const generate = useCallback(() => {
+    if (loading) return;
+    setLoading(true);
+    setStarred(false);
+
+    const steps = [...LOADING_STEPS].sort(() => Math.random() - 0.5).slice(0, 3);
+    setLoadStep(steps[0]);
+    setLoadStepKey((k) => k + 1);
+
+    loadTimers.current.forEach(clearTimeout);
+    loadTimers.current = [];
+    loadTimers.current.push(setTimeout(() => {
+      setLoadStep(steps[1]); setLoadStepKey((k) => k + 1);
+    }, 320));
+    loadTimers.current.push(setTimeout(() => {
+      setLoadStep(steps[2]); setLoadStepKey((k) => k + 1);
+    }, 640));
+
+    const wait = 900 + Math.random() * 600;
+    loadTimers.current.push(setTimeout(() => {
+      const next = genPhrase();
+      setPhrase((prev) => {
+        setHistory((h) => [
+          { id: Date.now(), text: prev, confidence: metrics.confidence },
+          ...h
+        ].slice(0, 12));
+        return prev;
+      });
+      setPhrase(next);
+      setPhraseKey((k) => k + 1);
+      setMetrics(makeMetrics());
+      setLoading(false);
+      if (voiceOn) speak(next);
+    }, wait));
+  }, [loading, metrics.confidence, voiceOn, speak]);
+
+  useEffect(() => () => {
+    loadTimers.current.forEach(clearTimeout);
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+  }, []);
+
+  const copyPhrase = useCallback(() => {
+    const write = navigator.clipboard && navigator.clipboard.writeText
+      ? navigator.clipboard.writeText(phrase)
+      : Promise.reject();
+    write.then(() => showToast("クリップボードに保存しました"))
+      .catch(() => {
+        try {
+          const ta = document.createElement("textarea");
+          ta.value = phrase;
+          ta.style.position = "fixed"; ta.style.opacity = "0";
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand("copy");
+          document.body.removeChild(ta);
+          showToast("クリップボードに保存しました");
+        } catch (e) {
+          showToast("コピーに失敗しました");
+        }
+      });
+  }, [phrase, showToast]);
+
+  const toggleStar = useCallback(() => {
+    setStarred((s) => {
+      const ns = !s;
+      showToast(ns ? "提言をスターに追加しました" : "スターを解除しました");
+      return ns;
+    });
+  }, [showToast]);
+
+  const tickerItems = [...TICKER, ...TICKER];
+
+  return (
+    <div className="min-h-screen flex flex-col">
+      {/* HEADER */}
+      <header className="sticky top-0 z-40" style={{
+        background: "rgba(10,14,26,0.82)",
+        backdropFilter: "blur(12px)",
+        WebkitBackdropFilter: "blur(12px)",
+        borderBottom: "1px solid var(--border)"
+      }}>
+        <div className="max-w-6xl mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="font-mono font-bold flex items-center justify-center"
+              style={{ width: 32, height: 32, borderRadius: 8, background: "var(--cyan)", color: "var(--bg)", fontSize: 18 }}>
+              Q
+            </div>
+            <div className="leading-tight">
+              <div className="font-semibold" style={{ fontSize: 16 }}>
+                SynergiQ<sup style={{ fontSize: 9, top: "-0.7em" }}>™</sup> <span style={{ color: "var(--cyan)" }}>Pro</span>
+              </div>
+              <div className="font-mono" style={{ fontSize: 9, letterSpacing: "0.18em", color: "var(--text-3)", textTransform: "uppercase" }}>
+                Enterprise Strategy AI · v2.4.1
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 md:gap-4">
+            <div className="hidden md:flex items-center gap-2 px-2.5 py-1 rounded-md"
+              style={{ background: "var(--bg-elev)", border: "1px solid var(--border)" }}>
+              <span className="blink-led" style={{ width: 7, height: 7, borderRadius: "50%", background: "var(--green)" }}></span>
+              <span className="font-mono" style={{ fontSize: 10, letterSpacing: "0.14em", color: "var(--text-2)" }}>SYSTEM ONLINE</span>
+            </div>
+            <div className="hidden sm:block text-right leading-tight">
+              <div style={{ fontSize: 13, fontWeight: 500 }}>山田 太郎</div>
+              <div style={{ fontSize: 10, color: "var(--text-3)" }}>Strategy Director</div>
+            </div>
+            <div className="flex items-center justify-center font-mono font-semibold"
+              style={{ width: 34, height: 34, borderRadius: "50%", background: "var(--bg-elev)", border: "1px solid var(--border)", fontSize: 12, color: "var(--text-2)" }}>
+              YT
+            </div>
+          </div>
+        </div>
+        {/* TICKER */}
+        <div style={{ borderTop: "1px solid var(--border-soft)", background: "var(--bg-card)", overflow: "hidden" }}>
+          <div className="py-1.5 whitespace-nowrap flex ticker" style={{ width: "max-content" }}>
+            {tickerItems.map((t, i) => {
+              const up = t.includes("▲");
+              const [head, ...rest] = t.split(up ? "▲" : "▼");
+              return (
+                <span key={i} className="font-mono" style={{ fontSize: 11, color: "var(--text-2)", paddingLeft: 24, paddingRight: 24 }}>
+                  {head}
+                  <span style={{ color: up ? "var(--green)" : "var(--red)" }}>{up ? "▲" : "▼"}{rest.join("")}</span>
+                </span>
+              );
+            })}
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-6xl mx-auto w-full px-4 md:px-6 py-5 flex-1">
+        {/* MODE TABS */}
+        <div className="flex flex-wrap gap-2 mb-5">
+          {MODES.map((m, i) => (
+            <button key={m} onClick={() => setActiveMode(i)}
+              className="tab-btn font-mono px-3 py-1.5 rounded-md"
+              style={{
+                fontSize: 12,
+                letterSpacing: "0.04em",
+                background: activeMode === i ? "var(--bg-elev)" : "transparent",
+                border: `1px solid ${activeMode === i ? "var(--border)" : "transparent"}`,
+                color: activeMode === i ? "var(--text)" : "var(--text-3)"
+              }}>
+              {m}
+            </button>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          {/* MAIN CARD */}
+          <section className="md:col-span-2 card flex flex-col">
+            <div className="flex items-center justify-between px-5 pt-4 pb-3" style={{ borderBottom: "1px solid var(--border-soft)" }}>
+              <div className="flex items-center gap-2">
+                <span style={{ color: "var(--cyan)" }}><Icon name="Target" size={15} /></span>
+                <span className="font-mono" style={{ fontSize: 11, letterSpacing: "0.16em", color: "var(--text-2)", textTransform: "uppercase" }}>
+                  本日の戦略提言
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="font-mono" style={{ fontSize: 11, color: "var(--text-3)" }}>{MODES[activeMode]}</span>
+                <span className="pulse-dot" style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--cyan)" }}></span>
+              </div>
+            </div>
+
+            {/* PHRASE AREA */}
+            <div className="px-5 md:px-7 flex items-center justify-center text-center"
+              style={{ minHeight: 140 }}>
+              {loading ? (
+                <div className="scan-line w-full flex flex-col items-center justify-center gap-3 py-6">
+                  <Icon name="RefreshCw" size={22} className="spin" />
+                  <span key={loadStepKey} className="marquee-text font-mono"
+                    style={{ fontSize: 13, color: "var(--cyan)", letterSpacing: "0.04em" }}>
+                    {loadStep}…
+                  </span>
+                </div>
+              ) : (
+                <p key={phraseKey} className="phrase-enter text-lg md:text-2xl leading-relaxed font-medium"
+                  style={{ color: "var(--text)" }}>
+                  {phrase}
+                </p>
+              )}
+            </div>
+
+            {/* METRICS */}
+            <div className="grid grid-cols-5" style={{ borderTop: "1px solid var(--border-soft)" }}>
+              <MetricCell label="信頼度" value={`${metrics.confidence.toFixed(1)}%`} color="var(--green)" />
+              <MetricCell label="シナジー指数" value={metrics.synergy} color="var(--cyan)" />
+              <MetricCell label="ROI予測" value={`${metrics.roi.toFixed(1)}x`} color="var(--amber)" />
+              <MetricCell label="市場ポテンシャル" value={metrics.potential} color="var(--cyan)" />
+              <MetricCell label="組織アライン度" value={`${metrics.align}%`} color="var(--green)" />
+            </div>
+
+            {/* ACTIONS */}
+            <div className="px-5 py-4 flex flex-wrap items-center gap-2.5" style={{ borderTop: "1px solid var(--border-soft)" }}>
+              <button onClick={generate} disabled={loading}
+                className="cta-glow font-medium rounded-lg px-4 py-2.5 flex items-center gap-2"
+                style={{ color: "var(--bg)", fontSize: 14 }}>
+                <Icon name="RefreshCw" size={16} className={loading ? "spin" : ""} />
+                {loading ? "分析中…" : "次の提言を生成"}
+              </button>
+              <button onClick={copyPhrase}
+                className="icon-btn rounded-lg px-3 py-2.5 flex items-center gap-1.5"
+                style={{ background: "var(--bg-elev)", border: "1px solid var(--border)", color: "var(--text-2)", fontSize: 13 }}>
+                <Icon name="Copy" size={15} /> コピー
+              </button>
+              <button onClick={() => speak(phrase)}
+                className="icon-btn rounded-lg px-3 py-2.5 flex items-center gap-1.5"
+                style={{ background: "var(--bg-elev)", border: "1px solid var(--border)", color: "var(--text-2)", fontSize: 13 }}>
+                <Icon name="Volume2" size={15} /> 読み上げ
+              </button>
+              <button onClick={toggleStar}
+                className="icon-btn rounded-lg px-3 py-2.5 flex items-center gap-1.5"
+                style={{
+                  background: starred ? "rgba(245,158,11,0.12)" : "var(--bg-elev)",
+                  border: `1px solid ${starred ? "rgba(245,158,11,0.5)" : "var(--border)"}`,
+                  color: starred ? "var(--amber)" : "var(--text-2)",
+                  fontSize: 13
+                }}>
+                <Icon name="Star" size={15} starActive={starred} /> スター
+              </button>
+              <label className="ml-auto flex items-center gap-2 cursor-pointer select-none"
+                style={{ fontSize: 12, color: "var(--text-3)" }}>
+                <input type="checkbox" checked={voiceOn} onChange={(e) => setVoiceOn(e.target.checked)}
+                  style={{ accentColor: "#06B6D4", width: 14, height: 14 }} />
+                生成時に自動読み上げ
+              </label>
+            </div>
+          </section>
+
+          {/* SIDE PANEL */}
+          <aside className="flex flex-col gap-5">
+            <ChartCard title="戦略偏差" icon="Activity" change="12.4%" positive={true} color="#06B6D4" data={sparks[0]} />
+            <ChartCard title="競合優位性指数" icon="TrendingUp" change="3.8%" positive={true} color="#22C55E" data={sparks[1]} />
+            <ChartCard title="エンゲージメント" icon="BarChart" change="0.6%" positive={false} color="#F59E0B" data={sparks[2]} />
+          </aside>
+        </div>
+
+        {/* HISTORY */}
+        <section className="card mt-5 p-5">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <span style={{ color: "var(--text-3)" }}><Icon name="Layers" size={15} /></span>
+              <span className="font-mono" style={{ fontSize: 11, letterSpacing: "0.16em", color: "var(--text-2)", textTransform: "uppercase" }}>
+                提言履歴
+              </span>
+            </div>
+            <span className="font-mono" style={{ fontSize: 11, color: "var(--text-3)" }}>
+              直近 {history.length} 件
+            </span>
+          </div>
+          {history.length === 0 ? (
+            <div className="text-center py-8" style={{ color: "var(--text-3)", fontSize: 13 }}>
+              履歴はまだありません
+            </div>
+          ) : (
+            <div className="flex flex-col">
+              {history.map((h, i) => (
+                <div key={h.id} className="hist-row flex items-center gap-3 px-2 py-2.5 rounded-md"
+                  style={{ borderBottom: i === history.length - 1 ? "none" : "1px solid var(--border-soft)" }}>
+                  <span className="font-mono shrink-0" style={{ fontSize: 11, color: "var(--text-3)" }}>
+                    #{String(history.length - i).padStart(3, "0")}
+                  </span>
+                  <span className="flex-1 min-w-0 truncate" style={{ fontSize: 13, color: "var(--text-2)" }}>
+                    {h.text}
+                  </span>
+                  <span className="font-mono shrink-0" style={{ fontSize: 11, color: "var(--green)" }}>
+                    {h.confidence.toFixed(1)}%
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+      </main>
+
+      {/* FOOTER */}
+      <footer style={{ borderTop: "1px solid var(--border)" }}>
+        <div className="max-w-6xl mx-auto px-4 md:px-6 py-3 flex flex-col sm:flex-row gap-1.5 sm:gap-4 sm:items-center sm:justify-between">
+          <span className="font-mono" style={{ fontSize: 10, letterSpacing: "0.12em", color: "var(--text-3)", textTransform: "uppercase" }}>
+            © SynergiQ Holdings, Inc. · ISO 27001 Certified · SOC 2 Type II
+          </span>
+          <span className="font-mono" style={{ fontSize: 10, letterSpacing: "0.12em", color: "var(--text-3)", textTransform: "uppercase" }}>
+            BUILD 2.4.1+0520 / REGION: AP-NORTHEAST-1 / <span style={{ color: "var(--green)" }}>● ALL SYSTEMS OPERATIONAL</span>
+          </span>
+        </div>
+      </footer>
+
+      {/* TOAST */}
+      {toast && (
+        <div className="fixed left-1/2 z-50 phrase-enter"
+          style={{
+            bottom: 28, transform: "translateX(-50%)",
+            background: "var(--bg-elev)", border: "1px solid var(--cyan)",
+            borderRadius: 8, padding: "10px 18px",
+            boxShadow: "0 0 18px rgba(6,182,212,0.3)"
+          }}>
+          <span className="font-mono" style={{ fontSize: 12, color: "#fff" }}>{toast}</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ===================== MOUNT ===================== */
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(<App />);
+
+requestAnimationFrame(() => {
+  setTimeout(() => {
+    const boot = document.getElementById("boot");
+    if (boot) {
+      boot.classList.add("hide");
+      setTimeout(() => boot.remove(), 480);
+    }
+  }, 700);
+});
+</script>
+</body>
+</html>
